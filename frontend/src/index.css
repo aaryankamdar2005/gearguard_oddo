@@ -87,3 +87,33 @@ code {
                       linear-gradient(to bottom, #80808012 1px, transparent 1px);
     background-size: 24px 24px;
 }
+
+/* ================================
+   iOS Safari input focus & autofill fix
+   ================================ */
+
+input,
+textarea,
+select {
+  -webkit-appearance: none;
+  appearance: none;
+  outline: none;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+/* Remove yellow autofill background */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+textarea:-webkit-autofill,
+select:-webkit-autofill {
+  -webkit-box-shadow: 0 0 0 1000px white inset !important;
+  -webkit-text-fill-color: #0f172a !important; /* slate-900 */
+  transition: background-color 5000s ease-in-out 0s;
+}
