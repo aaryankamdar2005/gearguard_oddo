@@ -88,6 +88,22 @@ GearGuard provides a **single source of truth** for all maintenance operations w
 
 
 ---
+## UI Preview
+
+<img width="1468" height="886" alt="image" src="https://github.com/user-attachments/assets/9f94274c-3473-4ebe-902b-eb4b82e21b63" />
+<img width="1470" height="846" alt="image" src="https://github.com/user-attachments/assets/28b00b54-de91-4a80-9e90-72f49ef89212" />
+<img width="1470" height="842" alt="image" src="https://github.com/user-attachments/assets/9501e4b0-c4a9-420e-82f0-8824a1d977d9" />
+<img width="1293" height="801" alt="image" src="https://github.com/user-attachments/assets/b4e833ff-65ab-4976-8a7c-09f7dbcd4af7" />
+<img width="1470" height="885" alt="image" src="https://github.com/user-attachments/assets/be739c2b-57f9-415f-be16-5a3fbb9bbe7c" />
+<img width="1470" height="841" alt="image" src="https://github.com/user-attachments/assets/9b5b6f95-65dc-4aea-a25f-16d64a955156" />
+<img width="1470" height="846" alt="image" src="https://github.com/user-attachments/assets/712d3fc4-0569-4e4c-aec2-735397189444" />
+<img width="1019" height="841" alt="image" src="https://github.com/user-attachments/assets/6e39f503-a270-40d8-91c8-bab09a4c6d62" />
+<img width="1410" height="542" alt="image" src="https://github.com/user-attachments/assets/a5e0f3c7-0100-447a-87a0-e03e3e161067" />
+<img width="1003" height="841" alt="image" src="https://github.com/user-attachments/assets/f9094b23-73dc-43c3-a527-5336d6c58b13" />
+<img width="1465" height="784" alt="image" src="https://github.com/user-attachments/assets/f66202fd-af8f-4be7-8f1a-933399825519" />
+
+
+---
 
 ## 🛠️ Tech Stack
 
