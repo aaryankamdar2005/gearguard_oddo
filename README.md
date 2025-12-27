@@ -122,13 +122,22 @@ GearGuard provides a **single source of truth** for all maintenance operations w
 
 
 
-**DevOps**
-- 🚀 [Vercel](https://vercel.com/) - Deployment and hosting
-- 📊 Vercel Analytics - Performance monitoring
+
 
 ---
 
-## 🚀 Getting Started
+## 👥 Team Members
 
-### Prerequisites
+- **Aaryan Kamdar ** (Team Leader)  
+  🔗 GitHub: https://github.com/aaryankamdar2005
+
+- **Darshan Purohit**  
+  🔗 GitHub: https://github.com/darshanpurohit20
+
+- **Atharv Kulkarni**  
+  🔗 GitHub: https://github.com/Atharvkulkarni
+
+- **Ashutosh Shetty**  
+  🔗 GitHub: https://github.com/AshutoshShetty
+
 
