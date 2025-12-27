@@ -361,8 +361,8 @@ export default function Requests() {
                         <div className="pt-3 border-t border-slate-200">
                           <Label className="font-mono text-xs text-slate-500 mb-2 block">Assign to:</Label>
                           <Select
-                            value={request.assigned_to || ''}
-                            onValueChange={(value) => handleAssignUser(request.id, value)}
+                            value={request.assigned_to || 'unassigned'}
+                            onValueChange={(value) => handleAssignUser(request.id, value === 'unassigned' ? '' : value)}
                           >
                             <SelectTrigger className="h-8 text-sm" data-testid={`assign-user-select-${request.id}`}>
                               <SelectValue placeholder="Unassigned">
@@ -377,7 +377,7 @@ export default function Requests() {
                               </SelectValue>
                             </SelectTrigger>
                             <SelectContent>
-                              <SelectItem value="">Unassigned</SelectItem>
+                              <SelectItem value="unassigned">Unassigned</SelectItem>
                               {users.map((user) => (
                                 <SelectItem key={user.id} value={user.id}>
                                   {user.name}
