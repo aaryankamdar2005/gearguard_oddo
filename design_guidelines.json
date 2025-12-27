@@ -1,0 +1,134 @@
+{
+  "identity": {
+    "name": "GearGuard",
+    "persona": "E1: The Anti-AI Designer",
+    "aesthetic": "Industrial Precision",
+    "core_philosophy": "The Control Room. Dense, functional, and precise. Every pixel serves a purpose. No fluff, just data and action."
+  },
+  "typography": {
+    "fonts": {
+      "heading": "Chivo, sans-serif",
+      "body": "Inter, sans-serif",
+      "mono": "JetBrains Mono, monospace"
+    },
+    "usage": {
+      "h1": "font-heading font-bold text-4xl tracking-tight text-slate-900 dark:text-slate-50",
+      "h2": "font-heading font-semibold text-2xl tracking-tight text-slate-800 dark:text-slate-100",
+      "h3": "font-heading font-medium text-xl text-slate-800 dark:text-slate-200",
+      "body": "font-body text-base leading-relaxed text-slate-600 dark:text-slate-400",
+      "label": "font-mono text-xs uppercase tracking-wider text-slate-500 dark:text-slate-500",
+      "data": "font-mono text-sm font-medium text-slate-700 dark:text-slate-300"
+    },
+    "installation": "Import fonts via Google Fonts in index.css: @import url('https://fonts.googleapis.com/css2?family=Chivo:wght@300;400;700;900&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');"
+  },
+  "colors": {
+    "palette": {
+      "primary": {
+        "name": "Cobalt Blue",
+        "hex": "#2563EB",
+        "tailwind": "bg-blue-600",
+        "usage": "Primary actions, active states, branding"
+      },
+      "secondary": {
+        "name": "Industrial Slate",
+        "hex": "#64748B",
+        "tailwind": "bg-slate-500",
+        "usage": "Secondary actions, borders, inactive states"
+      },
+      "accent": {
+        "name": "Safety Orange",
+        "hex": "#F97316",
+        "tailwind": "bg-orange-500",
+        "usage": "Critical alerts, 'Breakdown' status, urgent CTAs"
+      },
+      "success": {
+        "name": "Signal Green",
+        "hex": "#16A34A",
+        "tailwind": "bg-green-600",
+        "usage": "'Repaired' status, success messages"
+      },
+      "background": {
+        "light": "#F8FAFC",
+        "dark": "#0F172A"
+      }
+    },
+    "status_colors": {
+      "new": "bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-800",
+      "in_progress": "bg-orange-100 text-orange-700 border-orange-200 dark:bg-orange-900/30 dark:text-orange-300 dark:border-orange-800",
+      "repaired": "bg-green-100 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-300 dark:border-green-800",
+      "scrap": "bg-slate-100 text-slate-700 border-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700"
+    }
+  },
+  "visual_enhancers": {
+    "borders": "border border-slate-200 dark:border-slate-800",
+    "radius": "rounded-md",
+    "shadows": {
+      "card": "shadow-[0_1px_3px_0_rgb(0,0,0,0.1),0_1px_2px_-1px_rgb(0,0,0,0.1)]",
+      "hover": "shadow-[0_4px_6px_-1px_rgb(0,0,0,0.1),0_2px_4px_-2px_rgb(0,0,0,0.1)]",
+      "tactile": "shadow-[0_1px_0_0_rgba(255,255,255,0.5)_inset,0_1px_2px_0_rgba(0,0,0,0.05)]"
+    },
+    "textures": {
+      "grid": "bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]"
+    }
+  },
+  "layout": {
+    "container": "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8",
+    "dashboard_grid": "grid grid-cols-1 md:grid-cols-4 gap-6",
+    "spacing": {
+      "section": "py-12",
+      "element": "mb-6"
+    }
+  },
+  "components": {
+    "buttons": {
+      "primary": "bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md shadow-sm transition-all active:scale-95",
+      "secondary": "bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 font-medium py-2 px-4 rounded-md shadow-sm transition-all",
+      "danger": "bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-md shadow-sm transition-all"
+    },
+    "cards": {
+      "base": "bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg overflow-hidden",
+      "interactive": "hover:border-blue-500/50 hover:shadow-md transition-all cursor-pointer group"
+    },
+    "inputs": {
+      "base": "flex h-10 w-full rounded-md border border-slate-300 dark:border-slate-700 bg-transparent px-3 py-2 text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+    }
+  },
+  "image_urls": {
+    "equipment": [
+      {
+        "url": "https://images.unsplash.com/photo-1601467995997-ac1ae9a8fff4?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2NzR8MHwxfHNlYXJjaHwxfHxpbmR1c3RyaWFsJTIwbWFjaGluZXJ5JTIwc2VydmVyJTIwcm9vbSUyMGRlbGl2ZXJ5JTIwdHJ1Y2t8ZW58MHx8fHwxNzY2ODEwOTkyfDA&ixlib=rb-4.1.0&q=85",
+        "description": "White delivery truck",
+        "category": "Vehicle"
+      },
+      {
+        "url": "https://images.unsplash.com/photo-1532635026-d12867005472?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2NzR8MHwxfHNlYXJjaHwzfHxpbmR1c3RyaWFsJTIwbWFjaGluZXJ5JTIwc2VydmVyJTIwcm9vbSUyMGRlbGl2ZXJ5JTIwdHJ1Y2t8ZW58MHx8fHwxNzY2ODEwOTkyfDA&ixlib=rb-4.1.0&q=85",
+        "description": "Forklift in warehouse",
+        "category": "Machinery"
+      }
+    ],
+    "technicians": [
+      {
+        "url": "https://images.unsplash.com/photo-1581595220975-119360b1c63f?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2NzR8MHwxfHNlYXJjaHwzfHxwcm9mZXNzaW9uYWwlMjBoZWFkc2hvdCUyMGVuZ2luZWVyJTIwdGVjaG5pY2lhbnxlbnwwfHx8fDE3NjY4MTA5OTR8MA&ixlib=rb-4.1.0&q=85",
+        "description": "Technician with device",
+        "category": "Avatar"
+      }
+    ]
+  },
+  "instructions_to_main_agent": [
+    "Implement the 'Control Room' grid layout for the dashboard.",
+    "Use the 'Industrial Precision' aesthetic: sharp borders, high contrast, technical fonts.",
+    "Ensure the Kanban board has distinct, colored columns based on the status colors defined.",
+    "Use 'JetBrains Mono' for all serial numbers, dates, and IDs.",
+    "Apply the 'grid' texture to the background of the main dashboard area.",
+    "Use the provided image URLs for equipment and technician avatars.",
+    "Ensure all interactive elements have 'data-testid' attributes."
+  ],
+  "UNIVERSAL_GUIDELINES_FOR_MAIN_AGENT": [
+    "Do not use gradients for backgrounds; use solid colors or the provided grid texture.",
+    "Avoid 'soft' UI; go for 'tactile' and 'defined'.",
+    "Use 2-3x more spacing than typical designs.",
+    "Every interaction needs micro-animations (hover, active, focus).",
+    "Do not use generic AI emojis.",
+    "Use 'sonner' for toasts."
+  ]
+}
