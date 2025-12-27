@@ -119,7 +119,7 @@ def seed_data():
             "serial_number": "AC-2021-003",
             "category": "Machinery",
             "department": "Production",
-            "assigned_employee": null,
+            "assigned_employee": "",
             "team_id": team_ids.get("Electricians"),
             "location": "Building A, Basement",
             "purchase_date": "2021-05-12",
