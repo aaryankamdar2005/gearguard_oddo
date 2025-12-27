@@ -1,4 +1,4 @@
-from fastapi import FastAPI, APIRouter, HTTPException, Depends
+from fastapi import FastAPI, APIRouter, HTTPException, Depends, BackgroundTasks
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
@@ -12,13 +12,23 @@ import uuid
 from datetime import datetime, timezone, timedelta
 from passlib.context import CryptContext
 import jwt
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 
+# 1. Configuration & Setup
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
 
 mongo_url = os.environ['MONGO_URL']
 client = AsyncIOMotorClient(mongo_url)
 db = client[os.environ['DB_NAME']]
+
+# Email Settings
+SMTP_SERVER = os.environ.get('SMTP_SERVER', 'smtp.gmail.com')
+SMTP_PORT = int(os.environ.get('SMTP_PORT', 587))
+SMTP_USER = os.environ.get('SMTP_USER')
+SMTP_PASSWORD = os.environ.get('SMTP_PASSWORD')
 
 app = FastAPI()
 api_router = APIRouter(prefix="/api")
@@ -29,7 +39,7 @@ security = HTTPBearer()
 SECRET_KEY = os.environ.get('JWT_SECRET_KEY', 'your-secret-key-change-in-production')
 ALGORITHM = "HS256"
 
-# Models
+# 2. Models
 class User(BaseModel):
     model_config = ConfigDict(extra="ignore")
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
@@ -122,7 +132,16 @@ class MaintenanceRequestUpdate(BaseModel):
     duration: Optional[float] = None
     scheduled_date: Optional[str] = None
 
-# Helper functions
+class Notification(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    recipient_id: str
+    message: str
+    request_id: str
+    is_read: bool = False
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+# 3. Helper Functions
 def hash_password(password: str) -> str:
     return pwd_context.hash(password)
 
@@ -149,7 +168,48 @@ async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(s
     except jwt.InvalidTokenError:
         raise HTTPException(status_code=401, detail="Invalid token")
 
-# Auth routes
+# ==============================================================================
+# DEBUG: Send Email Function
+# ==============================================================================
+def send_email_notification(recipients: List[str], subject: str, body: str):
+    """
+    Sends an email to a list of recipients.
+    """
+    print(f"\n[EMAIL DEBUG] Starting background email task...")
+    print(f"[EMAIL DEBUG] Recipients: {recipients}")
+    print(f"[EMAIL DEBUG] Subject: {subject}")
+    
+    if not SMTP_USER or not SMTP_PASSWORD:
+        print("[EMAIL DEBUG] ERROR: SMTP_USER or SMTP_PASSWORD not set in .env file.")
+        return
+
+    print(f"[EMAIL DEBUG] SMTP Config: Server={SMTP_SERVER}, Port={SMTP_PORT}, User={SMTP_USER}")
+
+    msg = MIMEMultipart()
+    msg['From'] = SMTP_USER
+    msg['Subject'] = subject
+    msg['To'] = ", ".join(recipients)
+    msg.attach(MIMEText(body, 'plain'))
+
+    try:
+        print("[EMAIL DEBUG] Connecting to SMTP server...")
+        server = smtplib.SMTP(SMTP_SERVER, SMTP_PORT)
+        server.starttls()
+        
+        print("[EMAIL DEBUG] Logging in...")
+        server.login(SMTP_USER, SMTP_PASSWORD)
+        
+        print(f"[EMAIL DEBUG] Sending email to {len(recipients)} recipients...")
+        server.sendmail(SMTP_USER, recipients, msg.as_string())
+        
+        server.quit()
+        print(f"[EMAIL DEBUG] SUCCESS: Email sent successfully!\n")
+    except Exception as e:
+        print(f"[EMAIL DEBUG] FAILURE: Failed to send email.")
+        print(f"[EMAIL DEBUG] Exception Error: {e}\n")
+# ==============================================================================
+
+# 4. Auth Routes
 @api_router.post("/auth/register")
 async def register(user_create: UserCreate):
     existing = await db.users.find_one({"email": user_create.email}, {"_id": 0})
@@ -181,7 +241,7 @@ async def login(login_data: UserLogin):
 async def get_me(current_user: User = Depends(get_current_user)):
     return current_user
 
-# Equipment routes
+# 5. Equipment Routes
 @api_router.post("/equipment", response_model=Equipment)
 async def create_equipment(equipment_data: EquipmentCreate, current_user: User = Depends(get_current_user)):
     equipment = Equipment(**equipment_data.model_dump())
@@ -239,7 +299,7 @@ async def get_equipment_requests(equipment_id: str, current_user: User = Depends
             req["updated_at"] = datetime.fromisoformat(req["updated_at"])
     return requests
 
-# Team routes
+# 6. Team Routes
 @api_router.post("/teams", response_model=MaintenanceTeam)
 async def create_team(team_data: MaintenanceTeamCreate, current_user: User = Depends(get_current_user)):
     team = MaintenanceTeam(**team_data.model_dump())
@@ -287,7 +347,6 @@ async def delete_team(team_id: str, current_user: User = Depends(get_current_use
         raise HTTPException(status_code=404, detail="Team not found")
     return {"message": "Team deleted"}
 
-# Users routes
 @api_router.get("/users", response_model=List[User])
 async def get_users(current_user: User = Depends(get_current_user)):
     users = await db.users.find({}, {"_id": 0, "password": 0}).to_list(1000)
@@ -296,11 +355,18 @@ async def get_users(current_user: User = Depends(get_current_user)):
             user["created_at"] = datetime.fromisoformat(user["created_at"])
     return users
 
-# Maintenance Request routes
+# 7. Request Routes
 @api_router.post("/requests", response_model=MaintenanceRequest)
-async def create_request(request_data: MaintenanceRequestCreate, current_user: User = Depends(get_current_user)):
+async def create_request(
+    request_data: MaintenanceRequestCreate, 
+    background_tasks: BackgroundTasks, 
+    current_user: User = Depends(get_current_user)
+):
+    print(f"\n[DEBUG] Create Request Triggered by user: {current_user.email}")
+    
     equipment = await db.equipment.find_one({"id": request_data.equipment_id}, {"_id": 0})
     if not equipment:
+        print("[DEBUG] Error: Equipment not found")
         raise HTTPException(status_code=404, detail="Equipment not found")
     
     request = MaintenanceRequest(
@@ -315,12 +381,74 @@ async def create_request(request_data: MaintenanceRequestCreate, current_user: U
         team = await db.teams.find_one({"id": request.team_id}, {"_id": 0})
         if team:
             request.team_name = team.get("name")
+            print(f"[DEBUG] Request assigned to Team: {team.get('name')} (ID: {request.team_id})")
+    else:
+        print("[DEBUG] No Team assigned to this equipment.")
     
     request_dict = request.model_dump()
     request_dict["created_at"] = request_dict["created_at"].isoformat()
     request_dict["updated_at"] = request_dict["updated_at"].isoformat()
     
     await db.maintenance_requests.insert_one(request_dict)
+
+    # --- Notification Logic (In-App + Email) ---
+    if request.team_id:
+        team_doc = await db.teams.find_one({"id": request.team_id})
+        if team_doc and "member_ids" in team_doc:
+            print(f"[DEBUG] Found {len(team_doc['member_ids'])} members in team.")
+            
+            notifications_to_insert = []
+            recipient_emails = [] 
+            
+            for member_id in team_doc["member_ids"]:
+                if member_id == current_user.id:
+                    print(f"[DEBUG] Skipping email for user {member_id} (creator of request).")
+                    continue 
+                
+                # Fetch User Details for Email
+                member_user = await db.users.find_one({"id": member_id}, {"email": 1, "name": 1})
+                if member_user:
+                    user_email = member_user.get("email")
+                    user_name = member_user.get("name")
+                    print(f"[DEBUG] Found team member: {user_name}, Email: {user_email}")
+                    
+                    if user_email:
+                        recipient_emails.append(user_email)
+                    
+                    # In-App Notification
+                    new_notification = Notification(
+                        recipient_id=member_id,
+                        request_id=request.id,
+                        message=f"New maintenance request: {request.subject}",
+                    )
+                    notif_dict = new_notification.model_dump()
+                    notif_dict["created_at"] = notif_dict["created_at"].isoformat()
+                    notifications_to_insert.append(notif_dict)
+                else:
+                    print(f"[DEBUG] Warning: Member ID {member_id} not found in Users collection.")
+            
+            # DB Insert
+            if notifications_to_insert:
+                await db.notifications.insert_many(notifications_to_insert)
+            
+            # Email Background Task
+            if recipient_emails:
+                print(f"[DEBUG] Queueing background email to {len(recipient_emails)} recipients: {recipient_emails}")
+                email_subject = f"Maintenance Request: {request.subject}"
+                email_body = (
+                    f"Hello Team,\n\n"
+                    f"A new maintenance request has been created.\n\n"
+                    f"Equipment: {request.equipment_name}\n"
+                    f"Issue: {request.subject}\n"
+                    f"Priority: {request.request_type}\n\n"
+                    f"Please check the dashboard for details."
+                )
+                background_tasks.add_task(send_email_notification, recipient_emails, email_subject, email_body)
+            else:
+                print("[DEBUG] No valid emails found to send.")
+        else:
+            print("[DEBUG] Team document not found or has no members.")
+    
     return request
 
 @api_router.get("/requests", response_model=List[MaintenanceRequest])
@@ -344,8 +472,18 @@ async def get_request_by_id(request_id: str, current_user: User = Depends(get_cu
         request["updated_at"] = datetime.fromisoformat(request["updated_at"])
     return MaintenanceRequest(**request)
 
+# ==============================================================================
+# UPDATED FUNCTION: Update Request (Handles Assignment Email with DEBUG)
+# ==============================================================================
 @api_router.put("/requests/{request_id}", response_model=MaintenanceRequest)
-async def update_request(request_id: str, request_update: MaintenanceRequestUpdate, current_user: User = Depends(get_current_user)):
+async def update_request(
+    request_id: str, 
+    request_update: MaintenanceRequestUpdate, 
+    background_tasks: BackgroundTasks, 
+    current_user: User = Depends(get_current_user)
+):
+    print(f"\n[DEBUG] Update Request Triggered for ID: {request_id}")
+    
     existing = await db.maintenance_requests.find_one({"id": request_id}, {"_id": 0})
     if not existing:
         raise HTTPException(status_code=404, detail="Request not found")
@@ -353,10 +491,62 @@ async def update_request(request_id: str, request_update: MaintenanceRequestUpda
     update_data = request_update.model_dump(exclude_unset=True)
     update_data["updated_at"] = datetime.now(timezone.utc).isoformat()
     
-    if request_update.stage == "scrap":
+    # -------------------------------------------------------------
+    # 1. CHECK FOR NEW ASSIGNMENT AND SEND EMAIL
+    # -------------------------------------------------------------
+    new_assignee_id = request_update.assigned_to
+    old_assignee_id = existing.get("assigned_to")
+
+    if new_assignee_id and new_assignee_id != old_assignee_id:
+        print(f"[DEBUG] Assignment Change Detected: {old_assignee_id} -> {new_assignee_id}")
+        
+        # Fetch the Technician who was assigned
+        assignee = await db.users.find_one({"id": new_assignee_id})
+        
+        if assignee:
+            assignee_email = assignee.get("email")
+            assignee_name = assignee.get("name")
+            print(f"[DEBUG] Assignee Found: Name={assignee_name}, Email={assignee_email}")
+
+            # A. Create In-App Notification
+            new_notification = Notification(
+                recipient_id=assignee["id"],
+                request_id=request_id,
+                message=f"You have been assigned to request: {existing.get('subject')}",
+            )
+            notif_dict = new_notification.model_dump()
+            notif_dict["created_at"] = notif_dict["created_at"].isoformat()
+            await db.notifications.insert_one(notif_dict)
+
+            # B. Send Email
+            if assignee_email:
+                print(f"[DEBUG] Queueing assignment email to: {assignee_email}")
+                email_subject = f"Assigned to Task: {existing.get('subject')}"
+                email_body = (
+                    f"Hello {assignee_name},\n\n"
+                    f"You have been assigned to a maintenance request.\n\n"
+                    f"Task: {existing.get('subject')}\n"
+                    f"Equipment: {existing.get('equipment_name')}\n"
+                    f"Status: {existing.get('stage')}\n\n"
+                    f"Please log in to the dashboard to view details and update progress."
+                )
+                background_tasks.add_task(send_email_notification, [assignee_email], email_subject, email_body)
+            else:
+                print(f"[DEBUG] User {assignee_name} has no email address.")
+        else:
+            print(f"[DEBUG] Error: User ID {new_assignee_id} not found in database.")
+    # -------------------------------------------------------------
+
+    # 2. Side Effect: Update Equipment Status on Stage Change
+    if request_update.stage:
         equipment_id = existing.get("equipment_id")
         if equipment_id:
-            await db.equipment.update_one({"id": equipment_id}, {"$set": {"status": "scrapped"}})
+            if request_update.stage == "in_progress":
+                await db.equipment.update_one({"id": equipment_id}, {"$set": {"status": "maintenance"}})
+            elif request_update.stage == "repaired":
+                await db.equipment.update_one({"id": equipment_id}, {"$set": {"status": "active"}})
+            elif request_update.stage == "scrap":
+                await db.equipment.update_one({"id": equipment_id}, {"$set": {"status": "scrapped"}})
     
     await db.maintenance_requests.update_one({"id": request_id}, {"$set": update_data})
     
@@ -366,6 +556,7 @@ async def update_request(request_id: str, request_update: MaintenanceRequestUpda
     if isinstance(updated.get("updated_at"), str):
         updated["updated_at"] = datetime.fromisoformat(updated["updated_at"])
     return MaintenanceRequest(**updated)
+# ==============================================================================
 
 @api_router.delete("/requests/{request_id}")
 async def delete_request(request_id: str, current_user: User = Depends(get_current_user)):
@@ -374,7 +565,30 @@ async def delete_request(request_id: str, current_user: User = Depends(get_curre
         raise HTTPException(status_code=404, detail="Request not found")
     return {"message": "Request deleted"}
 
-# Dashboard stats
+# 8. Notification Routes
+@api_router.get("/notifications", response_model=List[Notification])
+async def get_my_notifications(current_user: User = Depends(get_current_user)):
+    notifications = await db.notifications.find(
+        {"recipient_id": current_user.id}, 
+        {"_id": 0}
+    ).sort("created_at", -1).to_list(50)
+    
+    for note in notifications:
+        if isinstance(note.get("created_at"), str):
+            note["created_at"] = datetime.fromisoformat(note["created_at"])
+    return notifications
+
+@api_router.put("/notifications/{notification_id}/read")
+async def mark_notification_read(notification_id: str, current_user: User = Depends(get_current_user)):
+    result = await db.notifications.update_one(
+        {"id": notification_id, "recipient_id": current_user.id},
+        {"$set": {"is_read": True}}
+    )
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Notification not found")
+    return {"message": "Marked as read"}
+
+# 9. Dashboard Stats Route
 @api_router.get("/dashboard/stats")
 async def get_dashboard_stats(current_user: User = Depends(get_current_user)):
     total_equipment = await db.equipment.count_documents({})
@@ -385,7 +599,6 @@ async def get_dashboard_stats(current_user: User = Depends(get_current_user)):
     in_progress_requests = await db.maintenance_requests.count_documents({"stage": "in_progress"})
     repaired_requests = await db.maintenance_requests.count_documents({"stage": "repaired"})
     
-    requests_by_type = {}
     corrective = await db.maintenance_requests.count_documents({"request_type": "corrective"})
     preventive = await db.maintenance_requests.count_documents({"request_type": "preventive"})
     
@@ -400,6 +613,7 @@ async def get_dashboard_stats(current_user: User = Depends(get_current_user)):
         "preventive_requests": preventive
     }
 
+# 10. App Assembly
 app.include_router(api_router)
 
 app.add_middleware(
