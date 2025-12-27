@@ -1,7 +1,7 @@
 import requests
 import sys
 
-BACKEND_URL = "https://maintrak-1.preview.emergentagent.com/api"
+BACKEND_URL = "http://127.0.0.1:8000/api"
 
 def seed_data():
     print("Starting GearGuard data seeding...")

@@ -2,7 +2,7 @@ import requests
 import os
 
 backend_url = os.popen("grep REACT_APP_BACKEND_URL /app/frontend/.env | cut -d '=' -f2").read().strip()
-API_URL = f"{backend_url}/api"
+API_URL = "http://127.0.0.1:8000/api"
 
 print(f"Using API URL: {API_URL}")
 
