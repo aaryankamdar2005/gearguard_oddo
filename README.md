@@ -1,6 +1,6 @@
  
 <div align="left">
-<h1>🛠️ GearGuard: The Ultimate Maintenance Tracker</h1>
+<h1>GearGuard: The Ultimate Maintenance Tracker</h1>
 <img src="https://github.com/user-attachments/assets/38d1eb65-8a81-4922-b87b-896851290552" width="300" alt="GearGuard Logo"/>
 
 
@@ -15,18 +15,18 @@
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind-3.0-38B2AC?logo=tailwind-css)](https://tailwindcss.com/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
-[🚀 Live Demo](https://gearguard-demo.vercel.app) • [📖 Documentation](docs/) • [🐛 Report Bug](issues/) • [✨ Request Feature](issues/)
+[Live Demo](https://gearguard-demo.vercel.app) • [📖 Documentation](docs/) • [🐛 Report Bug](issues/) • [✨ Request Feature](issues/)
 
 </div>
 
 ---
 
 
-## 🎯 About The Project
+## About The Project
 
 GearGuard revolutionizes how manufacturing companies manage equipment maintenance. Built as a comprehensive Odoo-style ERP module, it seamlessly connects **Equipment** (assets), **Teams** (technicians), and **Requests** (maintenance work) with intelligent automation and real-time collaboration [web:71][web:73].
 
-### 🚨 Problem Statement
+###  Problem Statement
 
 Companies lose **$260 billion annually** due to unplanned equipment downtime. Traditional maintenance tracking relies on spreadsheets, paper logs, and fragmented communication—resulting in:
 - ⏱️ Missed preventive maintenance schedules
@@ -34,7 +34,7 @@ Companies lose **$260 billion annually** due to unplanned equipment downtime. Tr
 - 🔍 Poor equipment health visibility
 - 💸 Budget overruns from emergency repairs
 
-### ✅ Our Solution
+###  Our Solution
 
 GearGuard provides a **single source of truth** for all maintenance operations with:
 - 🤖 **Smart Auto-Fill Logic** - Equipment selection automatically populates category, team, and technician
@@ -99,9 +99,6 @@ GearGuard provides a **single source of truth** for all maintenance operations w
 - 🗄️ [MongoDb](https://cloud.mongodb.com/) - PostgreSQL database + Auth + Realtime
 - 🔐 [NextAuth.js](https://next-auth.js.org/) - Authentication
 - 🔄 Next.js API Routes - Serverless functions
-
-
-
 
 
 ---
