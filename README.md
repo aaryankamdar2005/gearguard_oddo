@@ -1,5 +1,5 @@
  
-<div align="center">
+<div align="left">
 <h1>🛠️ GearGuard: The Ultimate Maintenance Tracker</h1>
 <img src="https://github.com/user-attachments/assets/38d1eb65-8a81-4922-b87b-896851290552" width="300" alt="GearGuard Logo"/>
 
