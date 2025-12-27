@@ -246,14 +246,14 @@ export default function Equipment() {
                       Maintenance Team
                     </Label>
                     <Select
-                      value={formData.team_id}
-                      onValueChange={(value) => setFormData({ ...formData, team_id: value })}
+                      value={formData.team_id || 'no-team'}
+                      onValueChange={(value) => setFormData({ ...formData, team_id: value === 'no-team' ? '' : value })}
                     >
                       <SelectTrigger data-testid="team-select">
                         <SelectValue placeholder="Select team" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="">No team</SelectItem>
+                        <SelectItem value="no-team">No team</SelectItem>
                         {teams.map((team) => (
                           <SelectItem key={team.id} value={team.id}>
                             {team.name}
